@@ -1,0 +1,169 @@
+
+:root{color-scheme:dark;--cream:#f7f1e8;--gold:#e8c9a0;--ink:#15252c}*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--ink);color:var(--cream)}#map{position:fixed;inset:0;background:#162b34;z-index:0}.leaflet-container{background:#162b34}.leaflet-control-attribution{font-size:10px!important}.leaflet-control-zoom{margin-bottom:24px!important}.leaflet-control-zoom a{background:#20343b!important;color:#f7f1e8!important;border-color:#52666a!important}.veil{position:fixed;inset:0;pointer-events:none;z-index:400;background:linear-gradient(180deg,rgba(10,24,30,.78) 0%,rgba(10,24,30,.14) 36%,transparent 65%)}.ui{position:relative;z-index:600;max-width:860px;margin:0 auto;padding:25px 20px;pointer-events:none}.ui>*{pointer-events:auto}.eyebrow{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin:0 0 7px}.header h1{font-family:Palatino,Georgia,serif;font-weight:400;font-size:clamp(30px,5vw,44px);margin:0}.header p:last-child{color:#d2dedb;margin:8px 0 22px;font-size:14px}.panel{background:rgba(23,43,49,.84);border:1px solid rgba(255,255,255,.2);border-radius:22px;padding:18px;box-shadow:0 18px 50px #0007;backdrop-filter:blur(18px)}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{position:relative;min-width:0}.field label{display:block;font-size:12px;letter-spacing:.07em;color:var(--gold);margin:0 0 8px}.field input{width:100%;height:48px;border-radius:13px;border:1px solid #ffffff38;background:#ffffff16;color:white;font:inherit;padding:0 14px;outline:none}.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #e8c9a022}.field input::placeholder{color:#c7d0cd}.field input:disabled{opacity:.48}.options{position:absolute;left:0;right:0;top:100%;margin-top:7px;max-height:250px;overflow:auto;background:#223941;border:1px solid #607077;border-radius:13px;padding:5px;box-shadow:0 14px 40px #0009;display:none;z-index:999}.options.open{display:block}.option{width:100%;text-align:left;border:0;background:transparent;color:white;padding:11px 12px;font:inherit;border-radius:9px;cursor:pointer}.option:hover,.option:focus{background:#ffffff23}.hint{font-size:12px;color:#d1ded9;margin:13px 0 0;min-height:18px}.legend{position:fixed;z-index:600;bottom:23px;left:50%;transform:translateX(-50%);background:#192d35df;border:1px solid #ffffff35;border-radius:40px;padding:11px 18px;font-size:13px;text-align:center;backdrop-filter:blur(10px);max-width:calc(100vw - 32px);white-space:normal}/* 3D-inspired top-down aircraft: nose points up at zero degrees. */
+.plane-icon{background:none!important;border:0!important;overflow:visible!important}
+.aircraft-wrap{width:58px;height:58px;display:grid;place-items:center;transform-origin:50% 50%;filter:drop-shadow(0 4px 5px #000b) drop-shadow(0 0 9px #eac785aa);will-change:transform}
+.aircraft-wrap svg{width:54px;height:54px;overflow:visible}
+.aircraft-glow{position:absolute;width:38px;height:38px;border-radius:50%;background:#f6cf8e35;filter:blur(12px)}
+.flight-route-glow{filter:drop-shadow(0 0 5px #e8b969)}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#203740;color:#fff}.leaflet-popup-content{font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}@media(max-width:620px){.ui{padding:18px 12px}.panel{padding:14px}.fields{grid-template-columns:1fr}.header p:last-child{margin-bottom:15px}.legend{bottom:14px;font-size:12px}}
+
+/* Встроенные базовые стили Leaflet: карта работает даже если CDN CSS недоступен. */
+.leaflet-container{overflow:hidden;position:relative;outline:0;touch-action:pan-x pan-y;background:#162b34}
+.leaflet-container *{box-sizing:content-box}
+.leaflet-container img{max-width:none!important;max-height:none!important}
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer{position:absolute;left:0;top:0}
+.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}
+.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}
+.leaflet-tile{visibility:hidden;border:0;user-select:none;-webkit-user-select:none}
+.leaflet-tile-loaded{visibility:inherit}
+.leaflet-zoom-animated{transform-origin:0 0}
+.leaflet-zoom-hide{visibility:hidden}
+.leaflet-interactive{cursor:pointer}
+.leaflet-grab{cursor:grab}.leaflet-dragging .leaflet-grab{cursor:grabbing}
+.leaflet-control{position:relative;z-index:800;pointer-events:auto;float:left;clear:both}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
+.leaflet-top{top:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}.leaflet-right{right:0}
+.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}
+.leaflet-left .leaflet-control{margin-left:10px;float:left}.leaflet-right .leaflet-control{margin-right:10px;float:right}
+.leaflet-control-zoom{border:2px solid #0003;border-radius:5px;overflow:hidden}
+.leaflet-control-zoom a{display:block;width:30px;height:30px;line-height:30px;text-align:center;text-decoration:none;font:bold 20px/30px Arial;background:white;color:#222;border-bottom:1px solid #ccc}
+.leaflet-control-zoom a:last-child{border-bottom:0}
+.leaflet-control-attribution{background:#fffd;color:#333;font:11px/1.4 Arial;padding:1px 5px}
+.leaflet-control-attribution a{color:#1675aa}
+.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}
+.leaflet-popup-content-wrapper{border-radius:12px;padding:1px;box-shadow:0 3px 14px #0006}
+.leaflet-popup-content{margin:13px 19px;line-height:1.4;white-space:nowrap}
+.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-left:-20px;overflow:hidden;pointer-events:none}
+.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;transform:rotate(45deg);box-shadow:0 3px 14px #0006}
+.leaflet-popup-close-button{position:absolute;top:0;right:0;border:0!important;text-decoration:none!important;font-size:20px;padding:4px;color:#ddd!important}
+.leaflet-div-icon{background:transparent;border:0}
+
+
+/* Индикатор загрузки городов */
+.city-search-status{display:flex;align-items:center;gap:11px;padding:13px 12px;color:#e7eee9;font-size:14px;min-height:46px}
+.city-search-spinner{width:18px;height:18px;border:2px solid rgba(232,201,160,.25);border-top-color:#e8c9a0;border-radius:50%;animation:city-search-spin .7s linear infinite;flex-shrink:0}
+@keyframes city-search-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.city-search-spinner{animation-duration:1.6s}}
+/* Cinematic cloud layer: CSS-only, no external images or API. */
+#cloudScene{position:fixed;inset:0;z-index:450;pointer-events:none;opacity:0;visibility:hidden;transition:opacity 1.1s ease,visibility 1.1s ease;overflow:hidden;isolation:isolate}
+#cloudScene::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(188,219,235,.12),rgba(29,61,82,.18) 75%);opacity:.9}
+.cloud{position:absolute;width:70vw;height:37vw;min-width:500px;min-height:270px;border-radius:50%;filter:blur(9px);background:radial-gradient(ellipse at 44% 45%,rgba(255,255,255,.84) 0%,rgba(248,252,255,.65) 22%,rgba(227,241,250,.3) 48%,transparent 70%);animation:cloudDrift 13s linear infinite;will-change:transform}
+.cloud.c1{top:-17%;left:-55%;animation-duration:15s}.cloud.c2{top:12%;left:-70%;animation-delay:-3s;animation-duration:17s;opacity:.72;transform:scale(.8)}
+.cloud.c3{bottom:-22%;left:-65%;animation-delay:-5s;animation-duration:16s;opacity:.8}
+.cloud.c4{top:35%;left:-90%;animation-delay:-1s;animation-duration:19s;opacity:.45}
+.cloud.c5{top:-25%;left:-65%;animation-delay:-8s;animation-duration:18s;opacity:.5;width:56vw;height:28vw}
+.cloud.c6{bottom:-33%;left:-95%;animation-delay:-10s;animation-duration:20s;opacity:.46;width:63vw;height:30vw}
+@keyframes cloudDrift{from{translate:-35vw 0}to{translate:185vw 0}}
+body.flight-clouds #cloudScene{opacity:1;visibility:visible}
+body.flight-clouds .aircraft-wrap{filter:drop-shadow(0 7px 8px #122e45bb) drop-shadow(0 0 16px #fff9)}
+body.flight-clouds .plane-icon{z-index:9999!important}
+@media(prefers-reduced-motion:reduce){.cloud{animation-duration:20s}}
+/* Keep previously loaded imagery nearby during movement; avoid white tile seams. */
+.leaflet-tile-pane{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.leaflet-tile{image-rendering:auto;outline:1px solid transparent}
+.origin-pin{background:transparent;border:0;filter:drop-shadow(0 3px 5px #0008)}
+/* During the flight, keep the map unobstructed. */
+.ui{transition:opacity .45s ease,transform .45s ease,visibility .45s ease}
+body.flight-mode .ui{opacity:0;transform:translateY(-22px);visibility:hidden;pointer-events:none}
+body.flight-mode .ui *{pointer-events:none}
+
+/* City photography: small preview while planning, cinematic welcome on arrival. */
+#cityPreview{position:fixed;left:22px;bottom:80px;width:min(350px,calc(100vw - 44px));height:176px;border:1px solid #ffffff45;border-radius:20px;overflow:hidden;z-index:690;background:radial-gradient(circle at 78% 12%,#56767d 0%,#243d48 45%,#172831 100%);box-shadow:0 18px 48px #0009;opacity:0;visibility:hidden;transform:translateY(18px) scale(.97);transition:opacity .55s ease,transform .55s ease,visibility .55s ease;pointer-events:none;isolation:isolate}
+#cityPreview.active{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+#cityPreview .preview-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s ease}
+#cityPreview .preview-img.ready{opacity:1}
+#cityPreview .preview-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(4,18,26,.93),rgba(4,18,26,.18) 70%)}
+#cityPreview .preview-content{position:absolute;bottom:17px;left:20px;right:20px;text-shadow:0 2px 12px #0009}
+.preview-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#e8c9a0;font-weight:700}
+.preview-city{font-family:Palatino,Georgia,serif;font-size:31px;font-weight:400;line-height:1.12;margin:5px 0 3px}
+.preview-country{font-size:13px;color:#e4eee8}
+.preview-source{position:absolute;right:12px;top:11px;border-radius:12px;background:#102a36b5;color:#edf3f4!important;font-size:10px;padding:5px 8px;text-decoration:none;pointer-events:auto}
+.preview-source[hidden]{display:none}
+#welcomeScreen{position:fixed;inset:0;z-index:1400;overflow:hidden;isolation:isolate;background:radial-gradient(circle at 60% 36%,#477485 0%,#172b38 52%,#09151e 100%);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .85s ease,visibility .85s ease}
+#welcomeScreen.visible{opacity:1;visibility:visible;pointer-events:auto}
+#welcomeScreen .welcome-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s ease;transform:scale(1.055)}
+#welcomeScreen .welcome-img.ready{opacity:1}
+#welcomeScreen.visible .welcome-img.ready{animation:welcomeZoom 6s ease-out both}
+@keyframes welcomeZoom{from{transform:scale(1.1)}to{transform:scale(1.01)}}
+#welcomeScreen .welcome-shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,19,28,.92),rgba(6,19,28,.22) 58%,rgba(6,19,28,.47))}
+#welcomeScreen .welcome-frame{position:absolute;inset:0;border:18px solid transparent;pointer-events:none}
+#welcomeScreen .welcome-content{position:absolute;left:8vw;right:8vw;bottom:14vh;max-width:850px;text-shadow:0 3px 26px #0016;transform:translateY(20px);opacity:0;transition:transform 1.1s ease .15s,opacity 1.1s ease .15s}
+#welcomeScreen.visible .welcome-content{transform:translateY(0);opacity:1}
+.welcome-overline{color:#f2d6ae;letter-spacing:.27em;text-transform:uppercase;font-size:clamp(11px,1.5vw,16px);font-weight:700}
+#welcomeScreen h2{font:400 clamp(48px,8.4vw,112px)/1.04 Palatino,Georgia,serif;margin:15px 0 12px;overflow-wrap:break-word}
+.welcome-subtitle{font-size:clamp(17px,2vw,25px);color:#e8ede9;letter-spacing:.02em}
+.welcome-decoration{width:76px;height:3px;border-radius:4px;background:#e8c9a0;margin:22px 0}
+.welcome-credit{position:absolute;right:26px;bottom:22px;font-size:11px;color:#eef2f2!important;padding:6px 10px;border-radius:12px;background:#122734bd;text-decoration:none}
+.welcome-credit[hidden]{display:none}
+@media(max-width:620px){#cityPreview{left:12px;bottom:64px;width:min(330px,calc(100vw - 24px));height:148px}.preview-city{font-size:27px}#welcomeScreen .welcome-content{left:7vw;right:7vw;bottom:16vh}}
+@media(prefers-reduced-motion:reduce){#welcomeScreen.visible .welcome-img.ready{animation:none}}
+
+
+/* Переключатель транспорта в панели маршрута. */
+.transport-section{margin-top:17px}
+.transport-title{margin:0 0 9px;color:#e8c9a0;font-size:12px;letter-spacing:.09em;font-weight:600}
+.transport-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.transport-btn{appearance:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:49px;padding:8px 10px;border:1px solid #ffffff36;border-radius:12px;background:#ffffff10;color:#e7eeec;font:600 13px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;cursor:pointer;transition:background .2s ease,border-color .2s ease,box-shadow .2s ease}
+.transport-btn:hover{background:#ffffff24;border-color:#ffffff70}
+.transport-btn:focus-visible{outline:2px solid #f1d4a7;outline-offset:3px}
+.transport-btn[aria-pressed="true"]{background:#e8c9a026;color:#fff;border-color:#e8c9a0;box-shadow:inset 0 0 0 1px #e8c9a044}
+.transport-symbol{font-size:22px;line-height:1.1}
+.transport-note{min-height:18px;margin:10px 0 0;font-size:11px;line-height:1.45;color:#d6e4de}
+.ground-vehicle-icon{background:transparent;border:0;overflow:visible!important}
+.ground-vehicle-badge{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;font-size:27px;background:#193942ee;border:2px solid #e8c9a0;box-shadow:0 6px 20px #000a,0 0 18px #e8c9a07e;will-change:transform}
+.ground-line-glow{filter:drop-shadow(0 0 4px #9bd8ee99)}
+@media(max-width:620px){.transport-options{grid-template-columns:repeat(2,minmax(0,1fr))}.transport-btn{min-height:46px}.transport-section{margin-top:14px}}
+
+/* Реальные маршруты — сведения о загрузке и объёмные модели транспорта. */
+.travel-date{display:none;margin:12px 0 2px;align-items:center;justify-content:space-between;gap:12px;color:#e8c9a0;font-size:12px}
+.travel-date.visible{display:flex}
+.travel-date input{font:inherit;max-width:170px;padding:9px 12px;border:1px solid #ffffff46;border-radius:10px;background:#243b44;color:white;color-scheme:dark}
+.route-sources{margin:5px 0 0;font-size:11px;color:#b8c8c8;line-height:1.45}
+.route-sources a{color:#dcc59e;text-decoration:underline;text-underline-offset:2px}
+.ground-vehicle-wrap{position:relative;width:64px;height:70px;filter:drop-shadow(0 8px 8px #000a);transform-origin:32px 35px;will-change:transform}
+.ground-vehicle-wrap::before{position:absolute;content:'';left:9px;top:10px;width:46px;height:50px;background:#a7e7fd55;filter:blur(13px);border-radius:50%}
+.ground-vehicle-wrap svg{position:absolute;left:0;top:0;width:64px;height:70px;overflow:visible}
+.ground-vehicle-icon{background:transparent;border:0;overflow:visible!important}
+.route-progress-pill{position:fixed;z-index:620;bottom:74px;left:50%;transform:translateX(-50%) translateY(10px);opacity:0;pointer-events:none;transition:opacity .5s ease,transform .5s ease;background:#132b34eb;color:#f9efe0;border:1px solid #e8c9a075;padding:9px 17px;border-radius:30px;max-width:calc(100vw - 30px);font-size:12px;text-align:center;box-shadow:0 9px 25px #0006;backdrop-filter:blur(14px)}
+.route-progress-pill.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:620px){.travel-date{align-items:flex-start;flex-direction:column}.route-progress-pill{bottom:65px;font-size:11px}}
+
+/* Начинаем путешествие только по осознанному нажатию. */
+.start-trip-area{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.start-trip-button{width:100%;min-height:51px;border:1px solid #ffe2a9;border-radius:14px;background:linear-gradient(110deg,#f5d69d,#dcaf71);color:#172a30;font:inherit;font-weight:750;font-size:16px;cursor:pointer;box-shadow:0 10px 25px #0004;transition:transform .2s,filter .2s,opacity .2s}
+.start-trip-button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.07)}
+.start-trip-button:disabled{opacity:.46;cursor:not-allowed;box-shadow:none}
+.start-trip-help{font-size:12px;color:#cbdad7;line-height:1.4;text-align:center}
+/* Покупка билетов: справочник официальных сервисов, без фиктивных цен. */
+.ticket-panel{display:none;margin-top:15px;padding:15px;border:1px solid #e8c9a055;border-radius:16px;background:linear-gradient(125deg,#304a4dd9,#182e36ed);box-shadow:0 8px 30px #0003}
+.ticket-panel.visible{display:block}
+.ticket-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ticket-title{margin:0;color:#f8ebd7;font-family:Palatino,Georgia,serif;font-size:23px;font-weight:normal}
+.ticket-route{margin:8px 0 5px;color:white;font-size:14px;font-weight:600}
+.ticket-subtitle{margin:4px 0 10px;font-size:12px;color:#d3dfdb;line-height:1.5}
+.ticket-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.ticket-link{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:12px;border-radius:11px;background:#f8efe915;border:1px solid #ffffff31;color:#fff;text-decoration:none;font-size:13px;font-weight:600;transition:background .2s,border-color .2s}
+.ticket-link:hover,.ticket-link:focus-visible{background:#f8efe92b;border-color:#e8c9a0}
+.ticket-copy{border:1px solid #e8c9a075;border-radius:9px;padding:7px 10px;background:transparent;color:#f8dfbb;font:inherit;font-size:11px;cursor:pointer}
+.ticket-notice{margin:10px 0 0;color:#b9d0d1;font-size:11px;line-height:1.5}
+@media(max-width:620px){.ticket-links{grid-template-columns:1fr}.ticket-title{font-size:21px}}
+
+/* Unified ticket search; no invented fares */
+.ticket-filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 0 10px}
+.ticket-filter{display:flex;flex-direction:column;gap:5px;min-width:0}
+.ticket-filter label{color:#efd4ae;font-size:11px;font-weight:700}
+.ticket-filter select,.ticket-filter input{background:#f8efe918;border:1px solid #ffffff38;border-radius:10px;color:#fff;min-width:0;width:100%;height:42px;padding:0 10px;font:inherit;font-size:13px}
+.ticket-filter option{color:#182e36;background:#fff}
+.ticket-search-btn{border:0;border-radius:12px;background:linear-gradient(110deg,#f7d79e,#ddb47f);color:#17303b;font-size:14px;font-weight:800;cursor:pointer;width:100%;padding:13px;margin:4px 0 12px}
+.ticket-search-btn:disabled{opacity:.55;cursor:wait}
+.ticket-results{display:grid;gap:9px;max-height:350px;overflow:auto;overscroll-behavior:contain;padding-right:3px}
+.ticket-result{background:#ffffff0b;border:1px solid #ffffff38;border-radius:13px;padding:13px;display:grid;gap:6px}
+.ticket-result-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;font-size:14px}
+.ticket-result-main{font-size:13px;color:#e8f0ef}
+.ticket-result-meta{color:#c9d8d7;font-size:12px}
+.ticket-empty{padding:18px;border:1px dashed #ffffff44;border-radius:12px;color:#d4e2e0;text-align:center;font-size:13px;line-height:1.55}
+.ticket-result-foot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ticket-result-foot a{color:#f9dbac;font-weight:700;font-size:12px}
+.ticket-group-title{margin:16px 0 8px;color:#efd4ae;font-size:12px;font-weight:700}
+.ticket-links{gap:8px}.ticket-link{padding:10px}
+.ticket-notice{margin-top:12px}
+@media(max-width:620px){.ticket-filters{grid-template-columns:1fr}}
